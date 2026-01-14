@@ -7,12 +7,12 @@ import matplotlib.patches as mpatches
 
 CROP_BAR:bool = True
 CROP_YRANGE:int = 150
-INJECTION_STEP:int = 7
-INJECTION_TYPE:str = "FP"
+INJECTION_STEP:int = 12
+INJECTION_TYPE:str = "FN"
 INJECTION_GRAPH_STYLE:str = "line"
 SEPARATE_LEARN_ADAPT:bool = False
-VIS_NOSAVE:bool = False
-RUN_NAME:str = "fpfn_kitsune_fp7-8"
+VIS_NOSAVE:bool = True
+RUN_NAME:str = "fpfn_kitsune_fp12"
 
 MAIN_PATH:str = "./results/"
 TARGET_DATASET:str = "Kitsune"
@@ -152,7 +152,8 @@ def _plot():
         x_pos += 2
     
     injection_x = (INJECTION_STEP - min_turn) * 2
-    ax.axvline(x=injection_x, color='red', linestyle=':', linewidth=2, label='Injection')
+    vline_label = "Removal" if INJECTION_TYPE == "FN" else "Injection"
+    ax.axvline(x=injection_x, color='red', linestyle=':', linewidth=2, label=vline_label)
     
     ax.set_xlabel('Turn Phase')
     ax.set_ylabel('Metric Value')
@@ -164,7 +165,7 @@ def _plot():
         final_inj_y = [y for x, y in zip(inj_x, inj_y) if x >= injection_start_x]
         
         if final_inj_x:
-            inj_label = f"Injected {INJECTION_TYPE} Count"
+            inj_label = "Removed FN Count" if INJECTION_TYPE == "FN" else f"Injected {INJECTION_TYPE} Count"
             ax_inj.plot(final_inj_x, final_inj_y, color='red', linewidth=2, label=inj_label, alpha=0.5)
             ax_inj.fill_between(final_inj_x, final_inj_y, color='red', alpha=0.1)
             ax_inj.set_ylabel(inj_label, color='red')
@@ -185,10 +186,10 @@ def _plot():
     lines3, labels3 = ax_inj.get_legend_handles_labels()
     
     # Reorder so Injection and Injected Count are last
-    main_lines = [l for l, lbl in zip(lines1, labels1) if lbl != 'Injection']
-    main_labels = [lbl for lbl in labels1 if lbl != 'Injection']
-    inj_lines = [l for l, lbl in zip(lines1, labels1) if lbl == 'Injection']
-    inj_labels = [lbl for lbl in labels1 if lbl == 'Injection']
+    main_lines = [l for l, lbl in zip(lines1, labels1) if lbl != vline_label]
+    main_labels = [lbl for lbl in labels1 if lbl != vline_label]
+    inj_lines = [l for l, lbl in zip(lines1, labels1) if lbl == vline_label]
+    inj_labels = [lbl for lbl in labels1 if lbl == vline_label]
     
     all_lines = main_lines + lines2 + inj_lines + lines3
     all_labels = [l[0].upper() + l[1:] if l else l for l in main_labels + labels2 + inj_labels + labels3]
